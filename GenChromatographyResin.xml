@@ -1,0 +1,7 @@
+<root>
+  <WaNo type="Input_Polymer-Building-Blocks" uuid="267b235a-a0ce-459e-81f6-2598997a6630" id="0" name="Input_Polymer-Building-Blocks"/>
+  <WaNo type="CG-Polymerisation" uuid="b734193c-b323-48ed-938f-84d462715ab2" id="1" name="CG-Polymerisation"/>
+  <WaNo type="Conversion_CG-to-AA" uuid="d5989fe2-4cdd-45fa-be47-15718de71915" id="2" name="Conversion_CG-to-AA"/>
+  <WaNo type="MD-Relaxation" uuid="fdd01472-f5c5-49f8-9805-e802760330f0" id="3" name="MD-Relaxation"/>
+  <WaNo type="Output_AA-structure" uuid="b9941c30-e542-4302-845e-845bbc85276e" id="4" name="Output_AA-structure"/>
+</root>

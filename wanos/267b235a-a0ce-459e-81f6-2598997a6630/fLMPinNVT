@@ -1,0 +1,69 @@
+variable lbl string PolyRelax_NVT
+variable dimX equal 10.0*${lenX}
+variable dimY equal 10.0*${lenY}
+variable dimZ equal 10.0*${lenZ}
+
+log             fLMPlog
+units           real
+atom_style      full
+boundary        p p p
+
+pair_style      lj/cut/coul/cut 12.500 8.50
+bond_style      harmonic
+angle_style     harmonic
+dihedral_style  opls
+improper_style  cvff
+
+special_bonds   lj/coul 0.0 0.0 1.0
+pair_modify     tail yes mix arithmetic
+dielectric      1.0
+
+read_data       fLMPdata
+
+thermo_style custom step temp pe ke
+thermo 1000
+
+minimize 1e-8 1e-8 1000000 1000000
+min_modify dmax 0.02
+write_data fPolyEQ nocoeff
+
+fix 97 all nve/limit 0.005
+run 20000
+unfix 97
+write_data data.temp_min
+
+velocity all create 100.0 4928459 dist gaussian
+fix 1 all nvt temp 300.0 300.0 10.0
+
+dump myDump all atom 1000 ${lbl}.lammpstrj
+
+timestep 0.0001
+#run 400000
+run 20000
+
+#write_data fPolyRelax.snap400k nocoeff
+
+fix 1 all nvt temp 300.0 300.0 20.0
+#unfix 1
+#fix 1 all npt temp 300.0 300.0 2.0 iso 1.0 1.0 100.0
+
+timestep 0.001
+#run 20000000 every 200000 "write_data f${lbl}.snap.* nocoeff"
+run 40000
+
+timestep 0.001
+run 140000
+
+unfix 1
+fix 1 all nvt temp 300.0 300.0 100.0
+
+fix 2 all deform 1 x final 0.0 ${dimX} y final 0.0 ${dimY} z final 0.0 ${dimZ} units box
+
+timestep 0.001
+run 1000000
+
+fix 1 all nvt temp 300.0 300.0 5.0
+unfix 2
+run 1000000
+
+write_data f${lbl} nocoeff

@@ -1,0 +1,23 @@
+# manual conversion for N2
+
+ 2 atoms
+ 1 bonds
+
+ Masses
+
+ 1 0.5
+ 2 0.5
+
+ Coords
+
+ 1 -0.3 0.000000 0.000000 # N Left
+ 2 0.3 0.000000 0.000000 # Right
+
+ Types
+
+ 1 1
+ 2 1
+
+ Bonds
+
+ 1 1 1 2
