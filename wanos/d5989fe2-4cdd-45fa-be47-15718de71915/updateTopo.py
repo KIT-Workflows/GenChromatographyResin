@@ -354,7 +354,7 @@ for bid, bond in enumerate(ldref.bonds):
                 delatoms.append(candA[7]+1)
                 delatoms.append(candB[0]+1)
                 ldall.atoms[candA[8]][2]=-0.450 #O for OH turns into O.co2
-                specialMarkers.append([candB[8], 'O.co2'])
+                specialMarkers.append([candA[8], 'O.co2'])
                 specialMarkers.append([candA[4], 'C.2'])
 
             elif typLigand=="DEAE" or typLigand=="SO3":
@@ -438,7 +438,7 @@ for bid, bond in enumerate(ldref.bonds):
 
             ldall.atoms[candB[8]][2]=-0.450
             specialMarkers.append([candB[8], 'O.co2'])
-            specialMarkers.append([candA[4], 'C.2'])
+            specialMarkers.append([candB[4], 'C.2'])
             #torsional definitions are not updated
         elif typA=="Ligand" and typLigand=="DEAE":
             if typMonomer=="DHPMA":
@@ -507,9 +507,9 @@ for bid, bond in enumerate(ldref.bonds):
                 delatoms.append(candA[10]+1)
                 delatoms.append(candA[11]+1)
                 delatoms.append(candA[12]+1)
-                delatoms.append(candB[13]+1)
-                ldall.atoms[candA[8]][2]=-0.450 #O for OH turns into O.co2
-                specialMarkers.append([candB[13], 'O.co2'])
+                delatoms.append(candB[0]+1)
+                ldall.atoms[candA[13]][2]=-0.450 #O for OH turns into O.co2
+                specialMarkers.append([candA[13], 'O.co2'])
                 specialMarkers.append([candA[9], 'C.2'])
 
             elif typLigand=="DEAE" or typLigand=="SO3":
