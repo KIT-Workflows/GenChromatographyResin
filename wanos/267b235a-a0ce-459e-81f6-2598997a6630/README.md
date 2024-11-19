@@ -1,5 +1,5 @@
-# polynet_input
-**polynet_input** is a WaNo which provides all data needed to run the 3D printing simulation of a polymer network.
+# Input_Polymer-Building-Blocks
+**Input_Polymer-Building-Blocks** is a WaNo which provides all data needed to run the 3D printing simulation of a polymer network.
 The polymer network is printed using 3 ingredients: HEMA as the basic building block of the backbone in the form of HEMA-HEMA dimers, EGDMA as a crosslinking agent, and TRP on the pedant sites, branching off the HEMA.
 
 ## Input
