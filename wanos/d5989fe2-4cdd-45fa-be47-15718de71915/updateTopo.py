@@ -92,15 +92,20 @@ def candDHPMA(a, ldall, aoffset):
     AidxCOH1H1=findmolecule(a, 40+aoffset, ldall) #COH1 COH1 H
     AidxCOH1H2=findmolecule(a, 39+aoffset, ldall) #COH1 COH2 H
     AidxCOH1O=findmolecule(a, 14+aoffset, ldall) #COH1 OH O
-
+        
     AidxCOH2C=findmolecule(a, 21+aoffset, ldall) #CH2OH2 C
     AidxCOH2HR=findmolecule(a, 48+aoffset, ldall) #COH2 OH H
     AidxCOH2H1=findmolecule(a, 47+aoffset, ldall) #COH2 COH1 H
     AidxCOH2H2=findmolecule(a, 46+aoffset, ldall) #COH2 COH2 H
     AidxCOH2O=findmolecule(a, 22+aoffset, ldall) #COH2 OH O
 
+    AidxCO1C=findmolecule(a, 7+aoffset, ldall) #C=O1 C
+    AidxCO1O=findmolecule(a, 8+aoffset, ldall) #C=O1 O    
+    AidxCO2C=findmolecule(a, 15+aoffset, ldall) #C=O2 O
+    AidxCO2O=findmolecule(a, 16+aoffset, ldall) #C=O2 O 
+
     #remove H (idx1) and connect C (idx2)
-    return Aidx1, Aidx2, Aidx3, Aidx4, AidxCOH1C, AidxCOH1HR, AidxCOH1H1, AidxCOH1H2, AidxCOH1O, AidxCOH2C, AidxCOH2HR, AidxCOH2H1, AidxCOH2H2, AidxCOH2O
+    return Aidx1, Aidx2, Aidx3, Aidx4, AidxCOH1C, AidxCOH1HR, AidxCOH1H1, AidxCOH1H2, AidxCOH1O, AidxCOH2C, AidxCOH2HR, AidxCOH2H1, AidxCOH2H2, AidxCOH2O, AidxCO1C, AidxCO1O, AidxCO2C, AidxCO2O
 
 def candHEMA(a, ldall, aoffset):
     Aidx1=findmolecule(a, 22+aoffset, ldall) #R H
@@ -118,9 +123,14 @@ def candHEMA(a, ldall, aoffset):
     AidxCOH2H1=findmolecule(a, 33+aoffset, ldall) #COH COH1 H
     AidxCOH2H2=findmolecule(a, 34+aoffset, ldall) #COH COH2 H
     AidxCOH2O=findmolecule(a, 12+aoffset, ldall) #COH OH O
+    
+    AidxCO1C=findmolecule(a, 7+aoffset, ldall) #C=O1 C
+    AidxCO1O=findmolecule(a, 8+aoffset, ldall) #C=O1 O    
+    AidxCO2C=findmolecule(a, 13+aoffset, ldall) #C=O2 O
+    AidxCO2O=findmolecule(a, 14+aoffset, ldall) #C=O2 O 
 
     #remove H (idx1) and connect C (idx2)
-    return Aidx1, Aidx2, Aidx3, Aidx4, AidxCOH1C, AidxCOH1HR, AidxCOH1H1, AidxCOH1H2, AidxCOH1O, AidxCOH2C, AidxCOH2HR, AidxCOH2H1, AidxCOH2H2, AidxCOH2O
+    return Aidx1, Aidx2, Aidx3, Aidx4, AidxCOH1C, AidxCOH1HR, AidxCOH1H1, AidxCOH1H2, AidxCOH1O, AidxCOH2C, AidxCOH2HR, AidxCOH2H1, AidxCOH2H2, AidxCOH2O, AidxCO1C, AidxCO1O, AidxCO2C, AidxCO2O
 
 def candEGDMA(a, ldall, aoffset):
     #atom types are offset due to different types in monomer, otherwise they cannot be found properly
@@ -165,8 +175,7 @@ def candSO3(a, ldall, aoffset):
 
 #remove the cap on HEMA, and use O on C-OH as C=O
 #need to record the indices of the C=O bond during the conversion to .mol2 in the bond definition
-oxyMarker=[] 
-carMarker=[]
+specialMarkers=[] 
 
 bondOccu=[]#recording bonds used in EGDMA: since no H caps indicate whether or not the C=C bond is already opened, a dedicated list is used for tracking
 for bid, bond in enumerate(ldref.bonds):
@@ -339,17 +348,21 @@ for bid, bond in enumerate(ldref.bonds):
     elif typ in [9]: 
         #Monomer-Ligand, remove 2Hs on C and 1H on O in CH2OH, always remove H cap (dummy cap) as 1st atom on Ligand
         if typA=="Monomer" and typMonomer=='DHPMA':
-            if typLigand=="TRP":
+            if typLigand=="TRP": #one CH2OH branch turns into C=O and C-N bond is formed
                 delatoms.append(candA[5]+1)
                 delatoms.append(candA[6]+1)
                 delatoms.append(candA[7]+1)
                 delatoms.append(candB[0]+1)
+                ldall.atoms[candA[8]][2]=-0.450 #O for OH turns into O.co2
+                specialMarkers.append([candB[8], 'O.co2'])
+                specialMarkers.append([candA[4], 'C.2'])
+
             elif typLigand=="DEAE" or typLigand=="SO3":
                 delatoms.append(candA[5]+1)
                 delatoms.append(candA[6]+1)
                 delatoms.append(candA[7]+1)
-                delatoms.append(candB[0]+1)
                 delatoms.append(candA[8]+1)
+                delatoms.append(candB[0]+1)
             
             if typLigand=="SO3" and lSpacer:
                 BONDS.append([ldall.nbondtypes+5, candA[4]+1, candB[-2]+1])
@@ -368,35 +381,42 @@ for bid, bond in enumerate(ldref.bonds):
             else:
                 BONDS.append([ldall.nbondtypes+5, candA[4]+1, candB[1]+1])
 
-            oxyMarker.append(candA[8])
-            carMarker.append(candA[4])
-            ldall.atoms[candA[8]][2]=-0.450
         elif typA=="Monomer" and typMonomer=='HEMA':
-            delatoms.append(candA[5]+1)
-            delatoms.append(candA[6]+1)
-            delatoms.append(candA[7]+1)
-            delatoms.append(candB[0]+1)
+            if typLigand=="TRP":
+                delatoms.append(candA[5]+1)
+                delatoms.append(candA[6]+1)
+                delatoms.append(candA[7]+1)
+                delatoms.append(candB[0]+1)
+                ldall.atoms[candA[8]][2]=-0.450
+                specialMarkers.append([candA[8], 'O.co2'])
+                specialMarkers.append([candA[4], 'C.2'])
+            elif typLigand=="SO3" or typLigand=="DEAE":
+                delatoms.append(candA[5]+1)
+                delatoms.append(candA[6]+1)
+                delatoms.append(candA[7]+1)
+                delatoms.append(candB[0]+1)
 
             if typLigand=="SO3" and lSpacer:
-                BONDS.append([ldall.nbondtypes+5, candA[4]+1, candB[-2]+1])
+                BONDS.append([ldall.nbondtypes+5, candA[8]+1, candB[-2]+1])
                 BONDS.append([ldall.nbondtypes+5, candB[-1]+1, candB[1]+1])
 
                 ANGLES.append([ldall.nangletypes+1, candB[-2]+1, candB[1]+1, candB[2]+1])
                 ANGLES.append([ldall.nangletypes+1, candB[-2]+1, candB[1]+1, candB[3]+1])
                 ANGLES.append([ldall.nangletypes+1, candB[-2]+1, candB[1]+1, candB[4]+1])
             elif typLigand=="SO3":
-                ANGLES.append([ldall.nangletypes+1, candA[4]+1, candB[1]+1, candB[2]+1])
-                ANGLES.append([ldall.nangletypes+1, candA[4]+1, candB[1]+1, candB[3]+1])
-                ANGLES.append([ldall.nangletypes+1, candA[4]+1, candB[1]+1, candB[4]+1])
-            elif lSpacer:
+                ANGLES.append([ldall.nangletypes+1, candA[8]+1, candB[1]+1, candB[2]+1])
+                ANGLES.append([ldall.nangletypes+1, candA[8]+1, candB[1]+1, candB[3]+1])
+                ANGLES.append([ldall.nangletypes+1, candA[8]+1, candB[1]+1, candB[4]+1])
+            elif typLigand=="DEAE" and lSpacer:
+                BONDS.append([ldall.nbondtypes+5, candA[8]+1, candB[-2]+1])
+                BONDS.append([ldall.nbondtypes+5, candB[-1]+1, candB[1]+1])
+            elif typLigand=="DEAE":
+                BONDS.append([ldall.nbondtypes+5, candA[8]+1, candB[1]+1])
+            elif typLigand=="TRP" and lSpacer:
                 BONDS.append([ldall.nbondtypes+5, candA[4]+1, candB[-2]+1])
                 BONDS.append([ldall.nbondtypes+5, candB[-1]+1, candB[1]+1])
-            else:
+            elif typLigand=="TRP":
                 BONDS.append([ldall.nbondtypes+5, candA[4]+1, candB[1]+1])
-
-            oxyMarker.append(candA[8])
-            carMarker.append(candA[4])
-            ldall.atoms[candA[8]][2]=-0.450
 
         elif typA=="Ligand" and typLigand=="TRP":
             if typMonomer=="HEMA":
@@ -416,9 +436,9 @@ for bid, bond in enumerate(ldref.bonds):
             else:
                 BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[4]+1])
 
-            oxyMarker.append(candB[8])
-            carMarker.append(candB[4])
             ldall.atoms[candB[8]][2]=-0.450
+            specialMarkers.append([candB[8], 'O.co2'])
+            specialMarkers.append([candA[4], 'C.2'])
             #torsional definitions are not updated
         elif typA=="Ligand" and typLigand=="DEAE":
             if typMonomer=="DHPMA":
@@ -427,17 +447,22 @@ for bid, bond in enumerate(ldref.bonds):
                 delatoms.append(candB[6]+1)
                 delatoms.append(candB[7]+1)
                 delatoms.append(candB[8]+1)
+                if lSpacer:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
+                    BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[4]+1])
+                else:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[4]+1])
+
             elif typMonomer=="HEMA":
                 delatoms.append(candA[0]+1)
                 delatoms.append(candB[5]+1)
                 delatoms.append(candB[6]+1)
                 delatoms.append(candB[7]+1)
-
-            if lSpacer:
-                BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
-                BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[4]+1])
-            else:
-                BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[4]+1])
+                if lSpacer:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
+                    BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[8]+1])
+                else:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[8]+1])
                 
         elif typA=="Ligand" and typLigand=="SO3":
             if typMonomer=="DHPMA":
@@ -446,42 +471,56 @@ for bid, bond in enumerate(ldref.bonds):
                 delatoms.append(candB[6]+1)
                 delatoms.append(candB[7]+1)
                 delatoms.append(candB[8]+1)
+                if lSpacer:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
+                    BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[4]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[2]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[3]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[4]+1])
+                else:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[4]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[4]+1, candA[1]+1, candA[2]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[4]+1, candA[1]+1, candA[3]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[4]+1, candA[1]+1, candA[4]+1])
+
             elif typMonomer=="HEMA":
                 delatoms.append(candA[0]+1)
                 delatoms.append(candB[5]+1)
                 delatoms.append(candB[6]+1)
                 delatoms.append(candB[7]+1)
-            if lSpacer:
-                BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
-                BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[5]+1])
-                ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[2]+1])
-                ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[3]+1])
-                ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[4]+1])
-            else:
-                BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[5]+1])
-                ANGLES.append([ldall.nangletypes+1, candB[4]+1, candA[1]+1, candA[2]+1])
-                ANGLES.append([ldall.nangletypes+1, candB[4]+1, candA[1]+1, candA[3]+1])
-                ANGLES.append([ldall.nangletypes+1, candB[4]+1, candA[1]+1, candA[4]+1])
-            #oxyMarker.append(candA[1])
-            #oxyMarker.append(candA[2])
+                if lSpacer:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
+                    BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[8]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[2]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[3]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[4]+1])
+                else:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[8]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[8]+1, candA[1]+1, candA[2]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[8]+1, candA[1]+1, candA[3]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[8]+1, candA[1]+1, candA[4]+1])
 
-    elif typ in [10]: 
-        #DHPMA*-TRP/DEAE, remove 2Hs on C and 1H on O in CH2OH 
+    elif typ in [10]: #type 10 bonds are for connecting the 2nd Ligand on a dimer, i.e. the "left" branch
+        #DHPMA-TRP, remove 2Hs on C and 1H on O in CH2OH 
         if typA=="Monomer" and typMonomer=='DHPMA':
-            if typLigand=="TRP":
+            if typLigand=="TRP": #one CH2OH branch turns into C=O and C-N bond is formed
                 delatoms.append(candA[10]+1)
                 delatoms.append(candA[11]+1)
                 delatoms.append(candA[12]+1)
-                delatoms.append(candB[0]+1)
-            elif typLigand=="SO3" or typLigand=="DEAE":
+                delatoms.append(candB[13]+1)
+                ldall.atoms[candA[8]][2]=-0.450 #O for OH turns into O.co2
+                specialMarkers.append([candB[13], 'O.co2'])
+                specialMarkers.append([candA[9], 'C.2'])
+
+            elif typLigand=="DEAE" or typLigand=="SO3":
                 delatoms.append(candA[10]+1)
                 delatoms.append(candA[11]+1)
                 delatoms.append(candA[12]+1)
                 delatoms.append(candA[13]+1)
                 delatoms.append(candB[0]+1)
-
+            
             if typLigand=="SO3" and lSpacer:
-                BONDS.append([ldall.nbondtypes+5, candA[4]+1, candB[-2]+1])
+                BONDS.append([ldall.nbondtypes+5, candA[9]+1, candB[-2]+1])
                 BONDS.append([ldall.nbondtypes+5, candB[-1]+1, candB[1]+1])
 
                 ANGLES.append([ldall.nangletypes+1, candB[-2]+1, candB[1]+1, candB[2]+1])
@@ -497,40 +536,54 @@ for bid, bond in enumerate(ldref.bonds):
             else:
                 BONDS.append([ldall.nbondtypes+5, candA[9]+1, candB[1]+1])
 
-            oxyMarker.append(candA[8])
-            carMarker.append(candA[4])
-            ldall.atoms[candA[8]][2]=-0.450
         elif typA=="Monomer" and typMonomer=='HEMA':
-            delatoms.append(candA[10]+1)
-            delatoms.append(candA[11]+1)
-            delatoms.append(candA[12]+1)
-            delatoms.append(candB[0]+1)
+            if typLigand=="TRP":
+                delatoms.append(candA[10]+1)
+                delatoms.append(candA[11]+1)
+                delatoms.append(candA[12]+1)
+                delatoms.append(candB[0]+1)
+                ldall.atoms[candA[13]][2]=-0.450
+                specialMarkers.append([candA[13], 'O.co2'])
+                specialMarkers.append([candA[9], 'C.2'])
+            elif typLigand=="SO3" or typLigand=="DEAE":
+                delatoms.append(candA[10]+1)
+                delatoms.append(candA[11]+1)
+                delatoms.append(candA[12]+1)
+                delatoms.append(candB[0]+1)
 
             if typLigand=="SO3" and lSpacer:
-                BONDS.append([ldall.nbondtypes+5, candA[4]+1, candB[-2]+1])
+                BONDS.append([ldall.nbondtypes+5, candA[13]+1, candB[-2]+1])
                 BONDS.append([ldall.nbondtypes+5, candB[-1]+1, candB[1]+1])
 
                 ANGLES.append([ldall.nangletypes+1, candB[-2]+1, candB[1]+1, candB[2]+1])
                 ANGLES.append([ldall.nangletypes+1, candB[-2]+1, candB[1]+1, candB[3]+1])
                 ANGLES.append([ldall.nangletypes+1, candB[-2]+1, candB[1]+1, candB[4]+1])
             elif typLigand=="SO3":
-                ANGLES.append([ldall.nangletypes+1, candA[9]+1, candB[1]+1, candB[2]+1])
-                ANGLES.append([ldall.nangletypes+1, candA[9]+1, candB[1]+1, candB[3]+1])
-                ANGLES.append([ldall.nangletypes+1, candA[9]+1, candB[1]+1, candB[4]+1])
-            elif lSpacer:
+                ANGLES.append([ldall.nangletypes+1, candA[13]+1, candB[1]+1, candB[2]+1])
+                ANGLES.append([ldall.nangletypes+1, candA[13]+1, candB[1]+1, candB[3]+1])
+                ANGLES.append([ldall.nangletypes+1, candA[13]+1, candB[1]+1, candB[4]+1])
+            elif typLigand=="DEAE" and lSpacer:
+                BONDS.append([ldall.nbondtypes+5, candA[13]+1, candB[-2]+1])
+                BONDS.append([ldall.nbondtypes+5, candB[-1]+1, candB[1]+1])
+            elif typLigand=="DEAE":
+                BONDS.append([ldall.nbondtypes+5, candA[13]+1, candB[1]+1])
+            elif typLigand=="TRP" and lSpacer:
                 BONDS.append([ldall.nbondtypes+5, candA[9]+1, candB[-2]+1])
                 BONDS.append([ldall.nbondtypes+5, candB[-1]+1, candB[1]+1])
-            else:
+            elif typLigand=="TRP":
                 BONDS.append([ldall.nbondtypes+5, candA[9]+1, candB[1]+1])
 
-            oxyMarker.append(candA[8])
-            carMarker.append(candA[4])
-            ldall.atoms[candA[8]][2]=-0.450
         elif typA=="Ligand" and typLigand=="TRP":
-            delatoms.append(candB[10]+1)
-            delatoms.append(candB[11]+1)
-            delatoms.append(candB[12]+1)
-            delatoms.append(candA[0]+1)
+            if typMonomer=="HEMA":
+                delatoms.append(candB[10]+1)
+                delatoms.append(candB[11]+1)
+                delatoms.append(candB[12]+1)
+                delatoms.append(candA[0]+1)
+            elif typMonomer=="DHPMA":
+                delatoms.append(candB[10]+1)
+                delatoms.append(candB[11]+1)
+                delatoms.append(candB[12]+1)
+                delatoms.append(candA[0]+1)
 
             if lSpacer:
                 BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
@@ -538,11 +591,10 @@ for bid, bond in enumerate(ldref.bonds):
             else:
                 BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[9]+1])
 
-            oxyMarker.append(candB[8])
-            carMarker.append(candB[4])
-            ldall.atoms[candB[8]][2]=-0.450
+            ldall.atoms[candB[13]][2]=-0.450
+            specialMarkers.append([candB[13], 'O.co2'])
+            specialMarkers.append([candB[9], 'C.2'])
             #torsional definitions are not updated
-
         elif typA=="Ligand" and typLigand=="DEAE":
             if typMonomer=="DHPMA":
                 delatoms.append(candA[0]+1)
@@ -550,17 +602,22 @@ for bid, bond in enumerate(ldref.bonds):
                 delatoms.append(candB[11]+1)
                 delatoms.append(candB[12]+1)
                 delatoms.append(candB[13]+1)
+                if lSpacer:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
+                    BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[9]+1])
+                else:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[9]+1])
+
             elif typMonomer=="HEMA":
                 delatoms.append(candA[0]+1)
                 delatoms.append(candB[10]+1)
                 delatoms.append(candB[11]+1)
                 delatoms.append(candB[12]+1)
-
-            if lSpacer:
-                BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
-                BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[9]+1])
-            else:
-                BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[9]+1])
+                if lSpacer:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
+                    BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[13]+1])
+                else:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[13]+1])
                 
         elif typA=="Ligand" and typLigand=="SO3":
             if typMonomer=="DHPMA":
@@ -569,25 +626,34 @@ for bid, bond in enumerate(ldref.bonds):
                 delatoms.append(candB[11]+1)
                 delatoms.append(candB[12]+1)
                 delatoms.append(candB[13]+1)
+                if lSpacer:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
+                    BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[9]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[2]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[3]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[4]+1])
+                else:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[9]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[9]+1, candA[1]+1, candA[2]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[9]+1, candA[1]+1, candA[3]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[9]+1, candA[1]+1, candA[4]+1])
+
             elif typMonomer=="HEMA":
                 delatoms.append(candA[0]+1)
                 delatoms.append(candB[10]+1)
                 delatoms.append(candB[11]+1)
                 delatoms.append(candB[12]+1)
-            #Aidx1 (S), Aidx2 (O), Aidx3 (O), Aidx4 (O), ALeftL (C on spacer), ARightL (C on spacer)
-            if lSpacer:
-                BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
-                BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[9]+1])
-                ANGLES.append([ldall.nangletypes+4, candA[-2]+1, candA[1]+1, candA[2]+1])
-                ANGLES.append([ldall.nangletypes+4, candA[-2]+1, candA[1]+1, candA[3]+1])
-                ANGLES.append([ldall.nangletypes+4, candA[-2]+1, candA[1]+1, candA[4]+1])
-            else:
-                BONDS.append([ldall.nbondtypes+5, candA[0]+1, candB[9]+1])
-                ANGLES.append([ldall.nangletypes+4, candB[9]+1, candA[1]+1, candA[2]+1])
-                ANGLES.append([ldall.nangletypes+4, candB[9]+1, candA[1]+1, candA[3]+1])
-                ANGLES.append([ldall.nangletypes+4, candB[9]+1, candA[1]+1, candA[4]+1])
-            #oxyMarker.append(candA[1])
-            #oxyMarker.append(candA[2])
+                if lSpacer:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candA[-2]+1])
+                    BONDS.append([ldall.nbondtypes+5, candA[-1]+1, candB[13]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[2]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[3]+1])
+                    ANGLES.append([ldall.nangletypes+1, candA[-2]+1, candA[1]+1, candA[4]+1])
+                else:
+                    BONDS.append([ldall.nbondtypes+5, candA[1]+1, candB[8]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[13]+1, candA[1]+1, candA[2]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[13]+1, candA[1]+1, candA[3]+1])
+                    ANGLES.append([ldall.nangletypes+1, candB[13]+1, candA[1]+1, candA[4]+1])
 
 AATOMS=[]
 delatoms=list(set(delatoms)) #unique atom ids in the remove list
