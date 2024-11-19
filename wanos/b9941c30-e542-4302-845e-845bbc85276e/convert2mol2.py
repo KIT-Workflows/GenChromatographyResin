@@ -61,7 +61,7 @@ def chkatyp(atype, types, masses):
             else:
                 return "C.3"
         elif types==["DHPMA", "EGDMA", "TRP"]:
-            if atype in [7, 13, 52, 80]: #7, 13:in HEMA2:as C=0, 44:in EDMA as C=O, 72:in TRP as C=O
+            if atype in [7, 15, 52, 80]: #7, 13:in HEMA2:as C=0, 44:in EDMA as C=O, 72:in TRP as C=O
                 return "C.2"
             elif atype in [70, 71, 74, 75, 76, 77, 78, 79]:
                 return "C.ar"
@@ -73,7 +73,7 @@ def chkatyp(atype, types, masses):
             else:
                 return "C.3"
         elif types==["DHPMA", "EGDMA", "DEAE"]:
-            if atype in [7, 13, 52]:
+            if atype in [7, 15, 52]:
                 return "C.2"
             else:
                 return "C.3"
@@ -83,7 +83,7 @@ def chkatyp(atype, types, masses):
             else:
                 return "C.3"                
         elif types==["DHPMA", "EGDMA", "SO3"]:
-            if atype in [7, 13, 52]: 
+            if atype in [7, 15, 52]: 
                 return "C.2"
             else:
                 return "C.3"
@@ -114,7 +114,7 @@ def chkatyp(atype, types, masses):
             else:
                 return "O.3"
         elif types==["DHPMA", "EGDMA", "TRP"]:
-            if atype in [8, 53, 81]: #7, 14:in HEMA2:as C=O, 53:in EDMA as C=O, 73:in TRP as C=O
+            if atype in [8, 16,  53, 81]: #7, 14:in HEMA2:as C=O, 53:in EDMA as C=O, 73:in TRP as C=O
                 return "O.co2"
             else:
                 return "O.3"
@@ -124,7 +124,7 @@ def chkatyp(atype, types, masses):
             else:
                 return "O.3"
         elif types==["DHPMA", "EGDMA", "DEAE"]:
-            if atype in [8, 53]: #8 in DHPMA as C=O 53:in EDMA as C=O
+            if atype in [8, 16, 53]: #8 in DHPMA as C=O 53:in EDMA as C=O
                 return "O.co2"
             else:
                 return "O.3"
@@ -134,7 +134,7 @@ def chkatyp(atype, types, masses):
             else:
                 return "O.3"
         elif types==["DHPMA", "EGDMA", "SO3"]:
-            if atype in [8, 53, 68, 69, 70]: #8 in DHPMA as C=O 53:in EDMA as C=O
+            if atype in [8, 16, 53, 68, 69, 70]: #8 in DHPMA as C=O 53:in EDMA as C=O
                 return "O.co2"
             else:
                 return "O.3"
@@ -144,14 +144,13 @@ def chkatyp(atype, types, masses):
     elif ele=="S":
         return "S.2"
 
-car=[]
-oxy=[]
+specialMarkers={}
 with open(sys.argv[2], 'r') as fr:
     fl=fr.readlines()
     for line in fl:
-        carc, oxyc=line.split()
-        car.append(int(carc))
-        oxy.append(int(oxyc))
+        aid, typ=line.strip().split()
+        aid=int(aid)
+        specialMarkers[aid]=typ
 
 numMonomer, typMonomer, numXLinker, typXLinker, numLigand, typLigand, lSpacer=readcomponents(sys.argv[3])
 types=[typMonomer, typXLinker, typLigand]
@@ -194,10 +193,8 @@ with open(infile+"_conv.mol2", 'w') as f:
       3:  C        36.6860:   7.1370:  36.6650:C.3:    1: IG1:       -0.0209
         """
         atyp=chkatyp(typ, types, ldW.masses)
-        if atomid in car:
-            atyp="C.2"
-        elif atomid in oxy:
-            atyp="O.co2"
+        if atomid in specialMarkers:
+            atyp=specialMarkers[aid]
 
         #atomtype in "C.3:for sp3, O.3:for sp3, O.2, H, O.co2, C.ar, N. pl3, N.ar, N.3, N.4, N.2"
         line="{cID:>7}{ele:>4}     {fx:10.4f}{fy:10.4f}{fz:10.4f} {atyp:<5} {mID:>3} {molStr:>4}     {charge:6.4f}\n".format(cID=atomid, ele=elementIDs[typ-1], mID=mol, molStr="IG"+str(mol), fx=x,fy=y,fz=z, charge=q, atyp=atyp)
@@ -218,7 +215,8 @@ with open(infile+"_conv.mol2", 'w') as f:
             btyp="ar"
         elif "O.co2" in chkatyp(atype1, types, ldW.masses) or "O.co2" in chkatyp(atype2, types, ldW.masses):
             btyp="2"
-        elif a1 in oxy or a2 in oxy:#special bond for C=O for HEMA-TRP connections
+        elif (a1 in specialMarkers and specialMarkers[a1]=="O.co2") or (a2 in specialMarkers and specialMarkers[a2]=="O.co2"):#special bond for C=O for HEMA-TRP connections
+            print("!")
             btyp="2"
         else:
             btyp="1"
