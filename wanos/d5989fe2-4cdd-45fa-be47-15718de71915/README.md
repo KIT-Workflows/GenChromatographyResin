@@ -1,5 +1,5 @@
-# all_atom_conversion
-**all_atom_conversion** WaNo converts the CG model from the 3Dprint WaNo to an all-atom representation.
+# Conversion_CG-to-AA
+**Conversion_CG-to-AA** WaNo converts the CG model from the 3Dprint WaNo to an all-atom representation.
 The final result is a MD simualtion-ready, all-inclusive LAMMPS datafile for the polymer network. This will be later used to run the relaxation, as well as docking simulations.
 
 ## Input
