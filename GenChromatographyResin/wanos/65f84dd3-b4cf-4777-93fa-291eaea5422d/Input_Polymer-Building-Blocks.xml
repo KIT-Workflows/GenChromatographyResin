@@ -1,0 +1,71 @@
+<WaNoTemplate>
+    
+    <WaNoMeta>
+ 		<Author>
+  			<Name> Modan Liu </Name>
+  			<Email>liu.modan@kit.edu</Email>
+ 		</Author>
+
+		<Description>
+			The input WaNo used for generation of a polymer network and the conversion to the all-atom model for docking simulations.
+ 		</Description>
+
+ 		<Keyword>polymer</Keyword>
+	</WaNoMeta>
+	
+	<WaNoRoot name="Input_Polymer-Building-Blocks">
+		<WaNoDropDown name="Monomer type for the polymeric backbone">
+			<Entry id="0" chosen="True">DHPMA</Entry>
+			<Entry id="1">HEMA</Entry>
+		</WaNoDropDown>
+		<WaNoDropDown name="Crosslinker type for the polymer network">
+			<Entry id="0" chosen="True">EGDMA</Entry>
+		</WaNoDropDown>
+		<WaNoDropDown name="Ligand type">
+			<Entry id="0">TRP</Entry>
+			<Entry id="1">Tetramethylammonium</Entry>
+			<Entry id="2" chosen="True">Sulfonic_acid</Entry>
+		</WaNoDropDown>
+		<WaNoInt name="num_Monomer" description="Number of monomers">690</WaNoInt>
+		<WaNoInt name="num_Crosslinker" description="Number of crosslinkers">260</WaNoInt>
+		<WaNoInt name="num_Ligand" description="Number of ligands">500</WaNoInt>
+		<WaNoInt name="Spacer units" description="Spacer units (-CH2-) on ligands">4</WaNoInt>
+	</WaNoRoot>
+	
+	<WaNoExecCommand>
+	python3 polyconfig.py {{ wano["num_Monomer"] }} {{ wano["Monomer type for the polymeric backbone"] }} {{ wano["num_Crosslinker"] }} {{ wano["Crosslinker type for the polymer network"] }} {{ wano["num_Ligand"] }} {{ wano["Ligand type"] }} {{ wano["Spacer units"] }}
+	</WaNoExecCommand>
+	
+	<WaNoInputFiles>
+		<WaNoInputFile logical_filename="HEMA2.lmp">HEMA2.lmp</WaNoInputFile>
+		<WaNoInputFile logical_filename="FF.HEMA2">FF.HEMA2</WaNoInputFile>
+		<WaNoInputFile logical_filename="DHPMA2.lmp">DHPMA2.lmp</WaNoInputFile>
+		<WaNoInputFile logical_filename="FF.DHPMA2">FF.DHPMA2</WaNoInputFile>
+		<WaNoInputFile logical_filename="mol.EGDMA">mol.EGDMA</WaNoInputFile>
+		<WaNoInputFile logical_filename="EGDMAhalf.lmp">EGDMAhalf.lmp</WaNoInputFile>
+		<WaNoInputFile logical_filename="FF.EGDMAhalf">FF.EGDMAhalf</WaNoInputFile>
+		<WaNoInputFile logical_filename="TRP.lmp">TRP.lmp</WaNoInputFile>
+		<WaNoInputFile logical_filename="FF.TRP">FF.TRP</WaNoInputFile>		
+		<WaNoInputFile logical_filename="Q.lmp">Q.lmp</WaNoInputFile>
+		<WaNoInputFile logical_filename="FF.Q">FF.Q</WaNoInputFile>
+		<WaNoInputFile logical_filename="S.lmp">S.lmp</WaNoInputFile>
+		<WaNoInputFile logical_filename="FF.S">FF.S</WaNoInputFile>
+		<WaNoInputFile logical_filename="polyconfig.py">polyconfig.py</WaNoInputFile>
+		<WaNoInputFile logical_filename="stitchFF.py">stitchFF.py</WaNoInputFile>
+		<WaNoInputFile logical_filename="LammpsDataFF.py">LammpsDataFF.py</WaNoInputFile>
+		<WaNoInputFile logical_filename="fLMPinNVT">fLMPinNVT</WaNoInputFile>
+	</WaNoInputFiles>
+		
+	<WaNoOutputFiles>
+		<WaNoOutputFile>Monomer.lmp</WaNoOutputFile>
+		<WaNoOutputFile>FF.Monomer</WaNoOutputFile>
+		<WaNoOutputFile>mol.Crosslinker</WaNoOutputFile>
+		<WaNoOutputFile>Crosslinkerhalf.lmp</WaNoOutputFile>
+		<WaNoOutputFile>FF.Crosslinkerhalf</WaNoOutputFile>
+		<WaNoOutputFile>Ligand.lmp</WaNoOutputFile>
+		<WaNoOutputFile>FF.Ligand</WaNoOutputFile>
+		<WaNoOutputFile>FFparams.combined</WaNoOutputFile>
+		<WaNoOutputFile>fLMPinNVT</WaNoOutputFile>
+		<WaNoOutputFile>poly.config</WaNoOutputFile>
+	</WaNoOutputFiles>
+</WaNoTemplate>

@@ -1,0 +1,238 @@
+
+
+#########polymer_network
+
+units           lj
+dimension       3
+boundary        p p p
+atom_style      full 
+pair_style      lj/cut 2.5
+pair_modify     shift yes
+bond_style      fene 
+neighbor        5 bin
+#neigh_modify    every 1 one 100
+neigh_modify     delay 0 every 1 check yes page 500000 one 50000
+special_bonds   fene
+comm_modify     cutoff 1.5
+#newton on
+# disable newton to allow GPU acceleration for other packages, anyway in bond/generate it works with both newton on and newton off
+
+##########Atoms definition
+
+read_data fRESIN extra/bond/per/atom 8 extra/special/per/atom 100 extra/bond/types 12
+
+########settings and potentials
+#variable numINI equal floor(${numHEMA}*0.284+${numEGDMA}*0.284) 
+variable numINI equal floor(${numHEMA}*0.284+${numEGDMA}*0.284)
+variable plaser equal floor(0.3*${numINI})
+
+pair_coeff * * 1.0 1.0 1.5
+bond_coeff * 30.0 1.5 1.0 1.0
+
+mass 1 1.3  #HEMA
+mass 2 1.3  #activated HEMA
+mass 3 1.3  #HEMA in chain
+mass 4 1.3  #active HEMA in chain
+mass 5 1.3  #HEMA with 2 bounds
+mass 6 1.0  #EGDMA with 1 bond
+mass 7 1.0  #active EGDMA with 1 bond
+mass 8 1.0  #EGDMA in chain w/ 2 bonds
+mass 9 1.0  #active EGDMA in chain w/ 2 bonds
+mass 10 1.0 #EGDMA with 3 bonds
+mass 11 1.3 #deactived HEMA
+mass 12 1.0 #deactived EGDMA
+mass 13 1.0 #neutral porogen
+mass 14 1.0 #TRP
+mass 15 1.0 #bound TRP
+mass 16 1.3 #HEMA0 with TRP1
+mass 17 1.3 #HEMA0 with TRP2
+mass 18 1.3 #HEMA0* with TRP1
+mass 19 1.3 #HEMA0* with TRP2
+mass 20 1.3 #HEMA1 with TRP1
+mass 21 1.3 #HEMA1 with TRP2
+mass 22 1.3 #HEMA1* with TRP1
+mass 23 1.3 #HEMA1* with TRP2
+mass 24 1.3 #HEMA2 with TRP1
+mass 25 1.3 #HEMA2 with TRP2
+mass 26 0.4 #initiators to turn to HEMA0*
+mass 27 0.4 #initiators to turn to EGDMA0*
+mass 28 1.0 #neutral porogen for 2/3 the box in Z direction
+
+group vacant type 28
+
+fix 98 vacant setforce 0.0 0.0 0.0 
+
+############run  section
+
+timestep 0.00001
+thermo 100
+
+#######variables
+
+variable typ1 atom type==1  #HEMA
+variable typ2 atom type==2  #activated HEMA
+variable typ3 atom type==3  #HEMA in chain
+variable typ4 atom type==4  #active HEMA in chain
+variable typ5 atom type==5  #HEMA with 2 bounds
+variable typ6 atom type==6  #EGDMA
+variable typ7 atom type==7  #active EGDMA
+variable typ8 atom type==8  #EGDMA in chain
+variable typ9 atom type==9  #EGDMA with 2 bounds
+variable typ10 atom type==10 #EGDMA with 2 bounds
+variable typ11 atom type==11 #deactived HEMA
+variable typ12 atom type==12 #deactived EGDMA
+variable typ13 atom type==13 #neutral porogen
+variable typ14 atom type==14 #TRP
+variable typ15 atom type==15 #bound TRP
+variable typ16 atom type==16 #HEMA0 TRP1
+variable typ17 atom type==17 #HEMA0 TRP2
+variable typ18 atom type==18 #HEMA0* TRP1
+variable typ19 atom type==19 #HEMA0* TRP2
+variable typ20 atom type==20 #HEMA1 TRP1
+variable typ21 atom type==21 #HEMA1 TRP2
+variable typ22 atom type==22 #HEMA1* TRP1
+variable typ23 atom type==23 #HEMA1* TRP2
+variable typ24 atom type==24 #HEMA2 TRP1
+variable typ25 atom type==25 #HEMA2 TRP2
+variable typ26 atom type==26 #initiators to turn to HEMA0*
+variable typ27 atom type==27 #initiators to turn to EGDMA0*
+
+group gtyp1 dynamic all var typ1 every 10
+group gtyp2 dynamic all var typ2 every 10
+group gtyp4 dynamic all var typ4 every 10
+group gtyp6 dynamic all var typ6 every 10
+group gtyp3 dynamic all var typ3 every 10
+group gtyp5 dynamic all var typ5 every 10
+group gtyp7 dynamic all var typ7 every 10
+group gtyp8 dynamic all var typ8 every 10
+group gtyp9 dynamic all var typ9 every 10
+group gtyp10 dynamic all var typ10 every 10
+group gtyp11 dynamic all var typ11 every 10
+group gtyp12 dynamic all var typ12 every 10
+group gtyp13 dynamic all var typ13 every 10
+group gtyp14 dynamic all var typ14 every 10
+group gtyp15 dynamic all var typ15 every 10
+group gtyp16 dynamic all var typ16 every 10
+group gtyp17 dynamic all var typ17 every 10
+group gtyp18 dynamic all var typ18 every 10
+group gtyp19 dynamic all var typ19 every 10
+group gtyp20 dynamic all var typ20 every 10
+group gtyp21 dynamic all var typ21 every 10
+group gtyp22 dynamic all var typ22 every 10
+group gtyp23 dynamic all var typ22 every 10
+group gtyp24 dynamic all var typ22 every 10
+group gtyp25 dynamic all var typ22 every 10
+group gtyp26 dynamic all var typ22 every 10
+group gtyp27 dynamic all var typ22 every 10
+
+variable t1count equal count(gtyp1)
+variable t2count equal count(gtyp2)
+variable t4count equal count(gtyp4)
+variable t6count equal count(gtyp6)
+variable t3count equal count(gtyp3)
+variable t5count equal count(gtyp5)
+variable t7count equal count(gtyp7)
+variable t8count equal count(gtyp8)
+variable t9count equal count(gtyp9)
+variable t10count equal count(gtyp10)
+variable t11count equal count(gtyp11)
+variable t12count equal count(gtyp12)
+variable t13count equal count(gtyp13)
+variable t14count equal count(gtyp14)
+variable t15count equal count(gtyp15)
+variable t16count equal count(gtyp16)
+variable t17count equal count(gtyp17)
+variable t18count equal count(gtyp18)
+variable t19count equal count(gtyp19)
+variable t20count equal count(gtyp20)
+variable t21count equal count(gtyp21)
+variable t22count equal count(gtyp22)
+variable t23count equal count(gtyp22)
+variable t24count equal count(gtyp22)
+variable t25count equal count(gtyp22)
+variable t26count equal count(gtyp22)
+variable t27count equal count(gtyp22)
+
+#########################count atom types and bonds
+
+
+thermo_style custom step temp bonds v_t1count v_t2count v_t3count v_t4count v_t5count v_t6count v_t7count v_t8count v_t9count v_t10count v_t11count v_t12count v_t13count v_t14count v_t15count v_t16count v_t17count v_t18count v_t19count v_t20count v_t21count v_t22count v_t23count v_t24count v_t25count v_t26count v_t27count
+
+#####################polymerization/quenching reactions
+#HEMA0-HEMA0
+fix dimerizationHEMA all bond/generate 22 1 2 1.12246 1 prob 0.90 87654 iparam 1 4 jparam 1 3 offset 1
+#fix quench1 all bond/generate 22 2 2 1.12246 1 prob 0.90 87654 iparam 1 3 jparam 1 3 offset 18
+#HEMA0-HEMA1
+fix polymerizationHEMA all bond/generate 22 2 3 1.12246 2 prob 0.90 873843 iparam 1 4 jparam 2 5 offset 2
+#fix quench2 all bond/generate 22 2 4 1.12246 1 prob 0.90 87654 iparam 1 3 jparam 2 5 offset 19
+
+#EGDMA0-EGDMA0
+fix dimerizationEGDMA all bond/generate 22 6 7 1.12246 3 prob 0.90 87654 iparam 2 9 jparam 2 8 offset 3
+#fix quench3 all bond/generate 22 7 7 1.12246 1 prob 0.90 87654 iparam 2 8 jparam 2 8 offset 20
+#EGDMA0-EGDMA1
+fix polymerizationEGDMA all bond/generate 22 7 8 1.12246 4 prob 0.90 873843 iparam 2 9 jparam 3 10 offset 4
+#fix quench4 all bond/generate 22 7 9 1.12246 1 prob 0.90 87654 iparam 2 8 jparam 3 10 offset 21
+
+#HEMA0-EGDMA0
+fix dimerization1 all bond/generate 22 1 7 1.12246 5 prob 0.90 87654 iparam 1 4 jparam 2 8 offset 5
+fix dimerization2 all bond/generate 22 2 6 1.12246 5 prob 0.90 87654 iparam 1 3 jparam 2 9 offset 6
+#fix quench5 all bond/generate 22 2 7 1.12246 1 prob 0.90 87654 iparam 1 3 jparam 2 8 offset 22
+
+#HEMA0-EGDMA1
+fix polymerization1 all bond/generate 22 2 8 1.12246 6 prob 0.90 873843 iparam 1 3 jparam 3 10 offset 7
+fix polymerization2 all bond/generate 22 1 9 1.12246 6 prob 0.90 873843 iparam 1 3 jparam 3 10 offset 8
+fix polymerization3 all bond/generate 22 2 9 1.12246 6 prob 0.90 873843 iparam 1 3 jparam 3 10 offset 9
+#HEMA1-EGDMA0
+fix polymerization4 all bond/generate 22 3 7 1.12246 7 prob 0.90 873843 iparam 2 5 jparam 2 8 offset 10
+fix polymerization5 all bond/generate 22 4 6 1.12246 7 prob 0.90 873843 iparam 2 5 jparam 2 8 offset 11
+fix polymerization6 all bond/generate 22 4 7 1.12246 7 prob 0.90 873843 iparam 2 5 jparam 2 8 offset 12
+#HEMA1-EGDMA1
+fix polymerization7 all bond/generate 22 3 9 1.12246 8 prob 0.90 873843 iparam 2 5 jparam 3 10 offset 10
+fix polymerization8 all bond/generate 22 4 8 1.12246 8 prob 0.90 873843 iparam 2 5 jparam 3 10 offset 11
+fix polymerization9 all bond/generate 22 4 9 1.12246 8 prob 0.90 873843 iparam 2 5 jparam 3 10 offset 12
+
+###########output
+#dump myDump all custom 1000 data/pyr/paint/g.*.lammpstrj id type xu yu zu
+#thermo_modify  format float "% .4e"
+
+###########thermostat
+
+fix 1 all nvt temp 3.0 1.0 10.0
+
+########### Monte Carlo step converts initiators to active monomers within a probability that is proportional to the laser power("90" should be changes to "%30 of the number of initiators in the box").
+#no explicit initiators and the conversion turns normal HEMA0 to activated HEMA0 
+fix SGMC1 all atom/swap 300 ${plaser} 345 100.0 semi-grand yes types 26 2 1 mu 2.0 4.0 2.0
+fix SGMC2 all atom/swap 300 ${plaser} 234 100.0 semi-grand yes types 27 7 6 mu 2.0 4.0 2.0
+
+run 200000
+
+unfix SGMC1 
+unfix SGMC2#turn laser off
+
+unfix 1
+velocity all create 0.1 4928459 rot yes dist gaussian
+#velocity all zero linear
+run 1000
+write_data datasnapshot.test
+fix 1 all nvt temp 1.0 1.0 1.0
+run 100000
+
+
+#as monomers are represented as dimer blocks, on each dimer there are two possible connection sites for TRP. Using type 19 and 20 for Monomer connected once, and Monomer connected twice.
+
+#TRP1- Monomer
+fix tryptophan1 all bond/generate 22 14 1 1.12246 9 prob 0.90 873843 iparam 1 15 jparam 1 16 offset 13
+fix tryptophan1p all bond/generate 22 14 16 1.12246 10 prob 0.90 873843 iparam 1 15 jparam 2 17 offset 14
+fix tryptophan2 all bond/generate 22 14 2 1.12246 9 prob 0.90 873843 iparam 1 15 jparam 1 18 offset 15
+fix tryptophan2p all bond/generate 22 14 18 1.12246 10 prob 0.90 873843 iparam 1 15 jparam 2 19 offset 16
+
+fix tryptophan3 all bond/generate 22 14 3 1.12246 9 prob 0.90 873843 iparam 1 15 jparam 2 20 offset 17
+fix tryptophan3p all bond/generate 22 14 20 1.12246 10 prob 0.90 873843 iparam 1 15 jparam 3 21 offset 18
+fix tryptophan4 all bond/generate 22 14 4 1.12246 9 prob 0.90 873843 iparam 1 15 jparam 2 22 offset 19
+fix tryptophan4p all bond/generate 22 14 22 1.12246 10 prob 0.90 873843 iparam 1 15 jparam 3 23 offset 20
+
+fix tryptophan5 all bond/generate 22 14 5 1.12246 9 prob 0.90 873843 iparam 1 15 jparam 3 24 offset 21
+fix tryptophan6 all bond/generate 22 14 24 1.12246 10 prob 0.90 873843 iparam 1 15 jparam 4 25 offset 22
+
+run 200000
+write_data fRESIN2
