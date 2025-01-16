@@ -1,0 +1,67 @@
+<WaNoTemplate>
+    
+	<WaNoMeta>
+ 		<Author>
+  			<Name> Modan Liu </Name>
+  			<Email>liu.modan@kit.edu</Email>
+ 		</Author>
+
+		<Description>
+			A WaNo that performs molecular dynamcis simulations with the LAMMPS package.
+ 		</Description>
+
+ 		<Keyword>MD</Keyword>
+	</WaNoMeta>
+	
+	<WaNoRoot name="MD-Relaxation">
+
+		<WaNoTabs name="TABS">
+			<WaNoGroup name="Basic_scripting">
+				<WaNoFile logical_filename="fLMPdata" name="LMPdata" visibility_condition="%s == False" visibility_var_path="TABS.Advanced_scripting.boolAdvanced" local="True">input file location</WaNoFile>
+
+				<WaNoFile logical_filename="fLMPlog" name="LMPlog" visibility_condition="%s == False" visibility_var_path="TABS.Advanced_scripting.boolAdvanced" local="True">output log file name</WaNoFile>
+
+				<WaNoFile logical_filename="fLMPdataMED" name="LMPdata_intermediate" visibility_condition="%s == False" visibility_var_path="TABS.Advanced_scripting.boolAdvanced" local="True">output intermediate data file name</WaNoFile>
+				
+				<WaNoFile logical_filename="fLMPtrj" name="LMPtrj" visibility_condition="%s == False" visibility_var_path="TABS.Advanced_scripting.boolAdvanced" local="True">output trajectory file name</WaNoFile>
+
+				
+			</WaNoGroup>
+			<WaNoGroup name="Advanced_scripting">
+				<WaNoBool name="boolAdvanced" description="Use advanced mode and process raw input file / LAMMPS script. If checked, the settings in the basic scripting tab will be ignored.">True</WaNoBool>
+  				<WaNoFile logical_filename="fLMPin" name="LMPinput" visibility_condition="%s == True" visibility_var_path="TABS.Advanced_scripting.boolAdvanced" local="False">Input_Polymer-Building-Blocks/outputs/fLMPinNVT</WaNoFile>
+				<WaNoBool name="boolData" description="Specify a LAMMPS data file for reading">True</WaNoBool>
+				<WaNoBool name="boolPara" description="Specify a LAMMPS parameters">True</WaNoBool>
+				
+				<WaNoFile logical_filename="fLMPdata" name="LMPdata" visibility_condition="%s == True" visibility_var_path="TABS.Advanced_scripting.boolData" local="False">Conversion_CG-to-AA/outputs/fPoly_FF</WaNoFile>
+				<WaNoFile logical_filename="fLMPpara" name="LMPpara" visibility_condition="%s == True" visibility_var_path="TABS.Advanced_scripting.boolPara" local="False">CG-Polymerisation/outputs/fLMPpara</WaNoFile>
+
+			</WaNoGroup>
+		</WaNoTabs>
+		
+	</WaNoRoot>
+	
+	<WaNoExecCommand>
+	{% if wano["TABS"]["Advanced_scripting"]["boolAdvanced"] %}
+		{{ "echo 'Using advanced scripting mode'"}}
+		{{ "export NANOMATCH=/shared/software/nanomatch"}}
+		{{ "export NANOVER=V4"}}
+		{{ "export OMP_NUM_THREADS=2"}}
+		{{ "source $NANOMATCH/$NANOVER/configs/lmp-generic.config"}}
+		{{ "mpiexec -np $UC_TOTAL_PROCESSORS lmp_new_colvars -in fLMPin $(cat fLMPpara | echo `xargs`)" }}
+	{% else %}
+		{{ "echo 'Using basic scripting mode. WIP at the moment'"}}
+	{% endif %}
+
+	</WaNoExecCommand>
+	
+	<WaNoInputFiles>
+		<WaNoInputFile logical_filename="sampleinput">sampleinput</WaNoInputFile>
+		<WaNoInputFile logical_filename="fLMPpara_sample">fLMPpara_sample</WaNoInputFile>
+	</WaNoInputFiles>
+	
+	<WaNoOutputFiles>
+		<WaNoOutputFile>fLMPlog</WaNoOutputFile>
+		<WaNoOutputFile>fPolyRelax_NVT</WaNoOutputFile>
+	</WaNoOutputFiles>
+</WaNoTemplate>

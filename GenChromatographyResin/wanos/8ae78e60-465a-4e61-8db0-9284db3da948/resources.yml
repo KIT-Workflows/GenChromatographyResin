@@ -1,0 +1,18 @@
+- - false
+  - CPUs per Node
+  - '8'
+- - false
+  - Number of Nodes
+  - 1
+- - false
+  - Memory [MB]
+  - '8192'
+- - true
+  - Time [Wall]
+  - '864000'
+- - false
+  - Queue
+  - default
+- - false
+  - Custom Requests
+  - ''

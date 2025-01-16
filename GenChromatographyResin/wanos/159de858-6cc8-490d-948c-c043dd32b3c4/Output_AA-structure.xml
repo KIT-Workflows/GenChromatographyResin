@@ -1,0 +1,37 @@
+<WaNoTemplate>
+    
+    <WaNoMeta>
+ 		<Author>
+  			<Name> Modan Liu </Name>
+  			<Email>liu.modan@kit.edu</Email>
+ 		</Author>
+
+		<Description>
+			The output WaNo used for converting the relaxed structure in LAMMPS datafile format to MOL2 format, to be imported in Schroedinger software.
+ 		</Description>
+
+ 		<Keyword>polymer</Keyword>
+	</WaNoMeta>
+	
+	<WaNoRoot name="Output_AA-structure">
+		<WaNoFile logical_filename="fPolyREF" name = "datafile for relaxed polymer network">fREF</WaNoFile>
+		<WaNoFile logical_filename="fCOrecords" name = "datafile for C-O bonding information">fCOrecorder.dat</WaNoFile>
+		<WaNoFile logical_filename="poly.config"  name = "configuration of polymer network (monomer, crosslinker, ligand combination)">polyconfig</WaNoFile>
+	</WaNoRoot>
+	
+	<WaNoExecCommand>
+	python3 convert2mol2.py fPolyREF fCOrecords poly.config
+	
+	</WaNoExecCommand>
+	
+	<WaNoInputFiles>
+		<WaNoInputFile logical_filename="fREF">fREF</WaNoInputFile>
+		<WaNoInputFile logical_filename="convert2mol2.py">convert2mol2.py</WaNoInputFile>
+		<WaNoInputFile logical_filename="LammpsDataDict.py">LammpsDataDict.py</WaNoInputFile>
+		<WaNoInputFile logical_filename="fCOrecorder.dat">COrecorder.dat</WaNoInputFile>
+	</WaNoInputFiles>
+	
+	<WaNoOutputFiles>
+		<WaNoOutputFile>fPolyREF_conv.mol2</WaNoOutputFile>
+	</WaNoOutputFiles>
+</WaNoTemplate>
