@@ -18,9 +18,6 @@ variable ssshrinkZ equal ${halfZ}-2.5
 
 variable numINI1 equal floor(${numHEMA}*0.284)
 variable numINI2 equal floor(${numEGDMA}*0.284)
-#variable numNEU equal floor(${numHEMA}*2.273+${numEGDMA}*2.273)
-variable numNEU equal floor(${numHEMA}*1+${numEGDMA}*1)
-#variable numFREEZE equal 50#floor(${dimX}*${dimY}*${dimZ}/2*0.8)
 
 units             lj
 atom_style        full

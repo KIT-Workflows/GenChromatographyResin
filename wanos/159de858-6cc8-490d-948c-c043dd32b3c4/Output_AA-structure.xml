@@ -14,9 +14,9 @@
 	</WaNoMeta>
 	
 	<WaNoRoot name="Output_AA-structure">
-		<WaNoFile logical_filename="fPolyREF" name = "datafile for relaxed polymer network">fREF</WaNoFile>
-		<WaNoFile logical_filename="fCOrecords" name = "datafile for C-O bonding information">fCOrecorder.dat</WaNoFile>
-		<WaNoFile logical_filename="poly.config"  name = "configuration of polymer network (monomer, crosslinker, ligand combination)">polyconfig</WaNoFile>
+		<WaNoFile logical_filename="fPolyREF" name="datafile for relaxed polymer network" local="False">MD-Relaxation/outputs/fPolyRelax_NVT</WaNoFile>
+		<WaNoFile logical_filename="fCOrecords" name="datafile for C-O bonding information" local="False">Conversion_CG-to-AA/outputs/COrecorder.dat</WaNoFile>
+		<WaNoFile logical_filename="poly.config" name="configuration of polymer network (monomer, crosslinker, ligand combination)" local="False">Input_Polymer-Building-Blocks/outputs/poly.config</WaNoFile>
 	</WaNoRoot>
 	
 	<WaNoExecCommand>
